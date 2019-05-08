@@ -23,6 +23,9 @@ void PointCloud::read(const string &path) {
 }
 
 void PointCloud::printHeader() {
+  cout
+      << "============================ HEADER INFO ============================"
+      << endl;
   cout << "magic = ";
   for (int i = 0; i < 4; i++) {
     cout << header.magic[i];
@@ -87,4 +90,7 @@ void PointCloud::printHeader() {
   cout << setw(10) << "maxX = " << setw(12) << header.maxX << "\t";
   cout << setw(10) << "maxY = " << setw(12) << header.maxY << "\t";
   cout << setw(10) << "maxZ = " << setw(12) << header.maxZ << endl;
+  cout
+      << "============================ HEADER  END ============================"
+      << endl;
 }
