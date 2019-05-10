@@ -218,12 +218,26 @@ void PointCloud::printHeader() {
 ** printHeadXYZ
 ** print the first n coordinates
 */
-void PointCloud::printHeadXYZ(int n) {
+void PointCloud::printHeadXYZ(int n, bool longVerision = false) {
   assert(fileLoaded);
-  for (vector<Point>::iterator it = points.begin(); it != points.cbegin() + n;
-       ++it) {
-    cout << "x: " << setw(15) << it->x << "  y: " << setw(15) << it->y
-         << "  z: " << setw(15) << it->z << endl;
+  if (!longVerision) {
+    for (vector<Point>::iterator it = points.begin(); it != points.cbegin() + n;
+         ++it) {
+      cout << "x: " << setw(15) << it->x << "  y: " << setw(15) << it->y
+           << "  z: " << setw(15) << it->z << endl;
+    }
+  } else {
+    for (vector<Point>::iterator it = points.begin(); it != points.cbegin() + n;
+         ++it) {
+      cout << "x, y, z, intensity, flags, class, angle rank, user data, "
+              "source, time, r, g, b"
+           << endl;
+      cout << it->x << "," << it->y << "," << it->z << "," << it->intensity
+           << "," << it->flags << "," << it->classification << ","
+           << it->scanAngleRank << "," << it->userData << ","
+           << it->pointSourceId << "," << it->gpsTime << "," << it->red << ","
+           << it->blue << "," << it->green << endl;
+    }
   }
 }
 
@@ -231,11 +245,24 @@ void PointCloud::printHeadXYZ(int n) {
 ** printTailXYZ
 ** print the last n coordinates
 */
-void PointCloud::printTailXYZ(int n) {
+void PointCloud::printTailXYZ(int n, bool longVersion = false) {
   assert(fileLoaded);
-  for (vector<Point>::reverse_iterator it = points.rbegin();
-       it != points.crbegin() + n; ++it) {
-    cout << "x: " << setw(15) << it->x << "  y: " << setw(15) << it->y
-         << "  z: " << setw(15) << it->z << endl;
+  if (!longVersion) {
+    for (vector<Point>::reverse_iterator it = points.rbegin();
+         it != points.crbegin() + n; ++it) {
+      cout << "x: " << setw(15) << it->x << "  y: " << setw(15) << it->y
+           << "  z: " << setw(15) << it->z << endl;
+    }
+  } else {
+    for (vector<Point>::reverse_iterator it = points.rbegin();
+         it != points.crbegin() + n; ++it) {
+      cout << "x, y, z, intensity, flags, class, angle rank, user data, "
+              "source, time, r, g, b"
+           << endl;
+      cout << it->x << "," << it->y << "," << it->z << "," << it->intensity
+           << "," << it->flags << "," << it->classification << ","
+           << it->scanAngleRank << "," << it->userData << ","
+           << it->pointSourceId << "," << it->gpsTime << "," << it->red << ","
+           << it->blue << "," << it->green << endl;
+    }
   }
-}
