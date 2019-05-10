@@ -2,26 +2,146 @@
 
 using namespace std;
 
+/*
+** Default Constructor
+*/
 PointCloud::PointCloud() { fileLoaded = false; }
 
+/*
+** Constructor
+** takes in the path of the .las and then calls read
+*/
 PointCloud::PointCloud(const string &path) { read(path); }
 
+/*
+** read
+** Input: path to .las in format 1.2
+** Output: header is filled, points are filled
+** Notes: all point record formats specified by ASPRS are
+** taken into account. points will have null members
+** depending on the point record format
+*/
 void PointCloud::read(const string &path) {
   ifstream inLAS(path, ios::binary);
 
+  // read las header - verifiy it is 1.2
   if (inLAS.is_open()) {
     inLAS.read((char *)&header, sizeof(header));
-    if ((int)header.headerSize == sizeof(header)) {
-      fileLoaded = true;
-    } else {
+    if ((int)header.headerSize != sizeof(header)) {
       throw runtime_error("Header does not match 1.2 las format");
     }
-
   } else {
     throw runtime_error("LAS not found");
   }
+
+  inLAS.seekg(header.pointDataOffset);
+  // define a new array to hold raw point records
+  // in one of 4 formats specificed by ASPRS
+
+  if ((int)header.pointDataRecordFormat == 0) {
+    PointRecord0 rawPoint;
+    for (uint32_t i = 0; i < header.numberOfPoints; i++) {
+      inLAS.read((char *)&rawPoint, sizeof(PointRecord0));
+      // convert raw point record to a generic point type
+      Point p = {0,
+                 ((double)rawPoint.x * header.scaleX) + header.offX,
+                 ((double)rawPoint.y * header.scaleY) + header.offY,
+                 ((double)rawPoint.z * header.scaleZ) + header.offZ,
+                 (unsigned short int)rawPoint.intensity,
+                 rawPoint.flags,
+                 (unsigned char)rawPoint.classification,
+                 (unsigned char)rawPoint.scanAngleRank,
+                 (unsigned char)rawPoint.userData,
+                 (unsigned short int)rawPoint.pointSourceId,
+                 (double)NULL,
+                 (unsigned short int)NULL,
+                 (unsigned short int)NULL,
+                 (unsigned short int)NULL};
+      points.push_back(p);
+      if (!inLAS.good()) {
+        throw runtime_error("LAS point reading failed");
+      }
+    }
+  } else if ((int)header.pointDataRecordFormat == 1) {
+    PointRecord1 rawPoint;
+    for (uint32_t i = 0; i < header.numberOfPoints; i++) {
+      inLAS.read((char *)&rawPoint, sizeof(PointRecord1));
+      // convert raw point record to a generic point type
+      Point p = {1,
+                 ((double)rawPoint.x * header.scaleX) + header.offX,
+                 ((double)rawPoint.y * header.scaleY) + header.offY,
+                 ((double)rawPoint.z * header.scaleZ) + header.offZ,
+                 (unsigned short int)rawPoint.intensity,
+                 rawPoint.flags,
+                 (unsigned char)rawPoint.classification,
+                 (unsigned char)rawPoint.scanAngleRank,
+                 (unsigned char)rawPoint.userData,
+                 (unsigned short int)rawPoint.pointSourceId,
+                 rawPoint.gpsTime,
+                 (unsigned short int)NULL,
+                 (unsigned short int)NULL,
+                 (unsigned short int)NULL};
+      points.push_back(p);
+      if (!inLAS.good()) {
+        throw runtime_error("LAS point reading failed");
+      }
+    }
+  } else if ((int)header.pointDataRecordFormat == 2) {
+    PointRecord2 rawPoint;
+    for (uint32_t i = 0; i < header.numberOfPoints; i++) {
+      inLAS.read((char *)&rawPoint, sizeof(PointRecord2));
+      // convert raw point record to a generic point type
+      Point p = {2,
+                 ((double)rawPoint.x * header.scaleX) + header.offX,
+                 ((double)rawPoint.y * header.scaleY) + header.offY,
+                 ((double)rawPoint.z * header.scaleZ) + header.offZ,
+                 (unsigned short int)rawPoint.intensity,
+                 rawPoint.flags,
+                 (unsigned char)rawPoint.classification,
+                 (unsigned char)rawPoint.scanAngleRank,
+                 (unsigned char)rawPoint.userData,
+                 (unsigned short int)rawPoint.pointSourceId,
+                 (double)NULL,
+                 (unsigned short int)rawPoint.red,
+                 (unsigned short int)rawPoint.green,
+                 (unsigned short int)rawPoint.blue};
+      points.push_back(p);
+      if (!inLAS.good()) {
+        throw runtime_error("LAS point reading failed");
+      }
+    }
+  } else if ((int)header.pointDataRecordFormat == 3) {
+    PointRecord3 rawPoint;
+    inLAS.read((char *)&rawPoint, sizeof(PointRecord3));
+    // convert raw point record to a generic point type
+    Point p = {3,
+               ((double)rawPoint.x * header.scaleX) + header.offX,
+               ((double)rawPoint.y * header.scaleY) + header.offY,
+               ((double)rawPoint.z * header.scaleZ) + header.offZ,
+               (unsigned short int)rawPoint.intensity,
+               rawPoint.flags,
+               (unsigned char)rawPoint.classification,
+               (unsigned char)rawPoint.scanAngleRank,
+               (unsigned char)rawPoint.userData,
+               (unsigned short int)rawPoint.pointSourceId,
+               rawPoint.gpsTime,
+               (unsigned short int)rawPoint.red,
+               (unsigned short int)rawPoint.green,
+               (unsigned short int)rawPoint.blue};
+    points.push_back(p);
+    if (!inLAS.good()) {
+      throw runtime_error("LAS point reading failed");
+    }
+  } else {
+    throw runtime_error("Unknown record format");
+  }
+  fileLoaded = true;
 }
 
+/*
+** printHeader
+** print all info in las header
+*/
 void PointCloud::printHeader() {
   cout
       << "============================ HEADER INFO ============================"
@@ -93,4 +213,29 @@ void PointCloud::printHeader() {
   cout
       << "============================ HEADER  END ============================"
       << endl;
+}
+/*
+** printHeadXYZ
+** print the first n coordinates
+*/
+void PointCloud::printHeadXYZ(int n) {
+  assert(fileLoaded);
+  for (vector<Point>::iterator it = points.begin(); it != points.cbegin() + n;
+       ++it) {
+    cout << "x: " << setw(15) << it->x << "  y: " << setw(15) << it->y
+         << "  z: " << setw(15) << it->z << endl;
+  }
+}
+
+/*
+** printTailXYZ
+** print the last n coordinates
+*/
+void PointCloud::printTailXYZ(int n) {
+  assert(fileLoaded);
+  for (vector<Point>::reverse_iterator it = points.rbegin();
+       it != points.crbegin() + n; ++it) {
+    cout << "x: " << setw(15) << it->x << "  y: " << setw(15) << it->y
+         << "  z: " << setw(15) << it->z << endl;
+  }
 }
