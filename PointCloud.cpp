@@ -143,7 +143,9 @@ void PointCloud::read(const string &path) {
 ** print all info in las header
 */
 void PointCloud::printHeader() {
+  int prec = 3;
   cout
+      << fixed << setprecision(prec)
       << "============================ HEADER INFO ============================"
       << endl;
   cout << "magic = ";
@@ -215,10 +217,12 @@ void PointCloud::printHeader() {
       << endl;
 }
 /*
-** printHeadXYZ
+** printHead
 ** print the first n coordinates
 */
-void PointCloud::printHeadXYZ(int n, bool longVerision = false) {
+void PointCloud::printHead(int n, bool longVerision) {
+  char sep = ',';
+  int prec = 3;
   assert(fileLoaded);
   if (!longVerision) {
     for (vector<Point>::iterator it = points.begin(); it != points.cbegin() + n;
@@ -227,16 +231,16 @@ void PointCloud::printHeadXYZ(int n, bool longVerision = false) {
            << "  z: " << setw(15) << it->z << endl;
     }
   } else {
+    cout << "x, y, z, intensity, flags, class, angle rank, user data, "
+            "source, time, r, g, b"
+         << endl;
     for (vector<Point>::iterator it = points.begin(); it != points.cbegin() + n;
          ++it) {
-      cout << "x, y, z, intensity, flags, class, angle rank, user data, "
-              "source, time, r, g, b"
-           << endl;
-      cout << it->x << "," << it->y << "," << it->z << "," << it->intensity
-           << "," << it->flags << "," << it->classification << ","
-           << it->scanAngleRank << "," << it->userData << ","
-           << it->pointSourceId << "," << it->gpsTime << "," << it->red << ","
-           << it->blue << "," << it->green << endl;
+      cout << fixed << setprecision(prec) << it->x << sep << it->y << sep
+           << it->z << sep << it->intensity << sep << it->flags << sep
+           << it->classification << sep << it->scanAngleRank << sep
+           << it->userData << sep << it->pointSourceId << sep << it->gpsTime
+           << sep << it->red << sep << it->blue << sep << it->green << endl;
     }
   }
 }
@@ -245,7 +249,9 @@ void PointCloud::printHeadXYZ(int n, bool longVerision = false) {
 ** printTailXYZ
 ** print the last n coordinates
 */
-void PointCloud::printTailXYZ(int n, bool longVersion = false) {
+void PointCloud::printTail(int n, bool longVersion) {
+  char sep = ',';
+  int prec = 3;
   assert(fileLoaded);
   if (!longVersion) {
     for (vector<Point>::reverse_iterator it = points.rbegin();
@@ -254,15 +260,16 @@ void PointCloud::printTailXYZ(int n, bool longVersion = false) {
            << "  z: " << setw(15) << it->z << endl;
     }
   } else {
+    cout << "x, y, z, intensity, flags, class, angle rank, user data, "
+            "source, time, r, g, b"
+         << endl;
     for (vector<Point>::reverse_iterator it = points.rbegin();
          it != points.crbegin() + n; ++it) {
-      cout << "x, y, z, intensity, flags, class, angle rank, user data, "
-              "source, time, r, g, b"
-           << endl;
-      cout << it->x << "," << it->y << "," << it->z << "," << it->intensity
-           << "," << it->flags << "," << it->classification << ","
-           << it->scanAngleRank << "," << it->userData << ","
-           << it->pointSourceId << "," << it->gpsTime << "," << it->red << ","
-           << it->blue << "," << it->green << endl;
+      cout << fixed << setprecision(prec) << it->x << sep << it->y << sep
+           << it->z << sep << it->intensity << sep << it->flags << sep
+           << it->classification << sep << it->scanAngleRank << sep
+           << it->userData << sep << it->pointSourceId << sep << it->gpsTime
+           << sep << it->red << sep << it->blue << sep << it->green << endl;
     }
   }
+}

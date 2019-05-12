@@ -23,8 +23,8 @@ class PointCloud {
   std::vector<Point> convert2Ft(const std::vector<Point> &intialPoints);
   std::vector<Point> convert2Meters(const std::vector<Point> &intialPoints);
   std::vector<Point> sortByClass(const std::vector<Point> &intialPoints);
-  void outputASCII(string path);
-  voud outputLAS(string path);
+  void outputASCII(std::string path);
+  void outputLAS(std::string path);
   std::vector<Point> removeAbnormalZValues(double radius, double x, double y,
                                            double z);
 };

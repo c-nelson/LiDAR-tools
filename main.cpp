@@ -5,7 +5,7 @@ int main() {
   PointCloud pc(
       "/Users/christiannelson/Documents/LiDAR-tools/test-data/mingo.las");
   pc.printHeader();
-  pc.printHeadXYZ(5);
-  pc.printTailXYZ(8);
+  pc.printHead(5);
+  pc.printTail(8, true);
   return 0;
 }
