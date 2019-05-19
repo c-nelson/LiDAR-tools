@@ -48,9 +48,12 @@ void PointCloud::read(const string &path) {
                  ((double)rawPoint.y * header.scaleY) + header.offY,
                  ((double)rawPoint.z * header.scaleZ) + header.offZ,
                  (unsigned short int)rawPoint.intensity,
-                 rawPoint.flags,
-                 (unsigned char)rawPoint.classification,
-                 (unsigned char)rawPoint.scanAngleRank,
+                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (0))),
+                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (2))),
+                 (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (4))),
+                 (bool)(((1 << 3) - 1) & (rawPoint.flags >> (5))),
+                 (unsigned short int)rawPoint.classification,
+                 (short int)rawPoint.scanAngleRank,
                  (unsigned char)rawPoint.userData,
                  (unsigned short int)rawPoint.pointSourceId,
                  (double)NULL,
@@ -72,9 +75,12 @@ void PointCloud::read(const string &path) {
                  ((double)rawPoint.y * header.scaleY) + header.offY,
                  ((double)rawPoint.z * header.scaleZ) + header.offZ,
                  (unsigned short int)rawPoint.intensity,
-                 rawPoint.flags,
-                 (unsigned char)rawPoint.classification,
-                 (unsigned char)rawPoint.scanAngleRank,
+                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (0))),
+                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (2))),
+                 (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (4))),
+                 (bool)(((1 << 3) - 1) & (rawPoint.flags >> (5))),
+                 (unsigned short int)rawPoint.classification,
+                 (short int)rawPoint.scanAngleRank,
                  (unsigned char)rawPoint.userData,
                  (unsigned short int)rawPoint.pointSourceId,
                  rawPoint.gpsTime,
@@ -96,8 +102,11 @@ void PointCloud::read(const string &path) {
                  ((double)rawPoint.y * header.scaleY) + header.offY,
                  ((double)rawPoint.z * header.scaleZ) + header.offZ,
                  (unsigned short int)rawPoint.intensity,
-                 rawPoint.flags,
-                 (unsigned char)rawPoint.classification,
+                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (0))),
+                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (2))),
+                 (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (4))),
+                 (bool)(((1 << 3) - 1) & (rawPoint.flags >> (5))),
+                 (unsigned short int)rawPoint.classification,
                  (unsigned char)rawPoint.scanAngleRank,
                  (unsigned char)rawPoint.userData,
                  (unsigned short int)rawPoint.pointSourceId,
@@ -119,9 +128,12 @@ void PointCloud::read(const string &path) {
                ((double)rawPoint.y * header.scaleY) + header.offY,
                ((double)rawPoint.z * header.scaleZ) + header.offZ,
                (unsigned short int)rawPoint.intensity,
-               rawPoint.flags,
-               (unsigned char)rawPoint.classification,
-               (unsigned char)rawPoint.scanAngleRank,
+               (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (0))),
+               (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (2))),
+               (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (4))),
+               (bool)(((1 << 3) - 1) & (rawPoint.flags >> (5))),
+               (unsigned short int)rawPoint.classification,
+               (short int)rawPoint.scanAngleRank,
                (unsigned char)rawPoint.userData,
                (unsigned short int)rawPoint.pointSourceId,
                rawPoint.gpsTime,
@@ -144,10 +156,7 @@ void PointCloud::read(const string &path) {
 */
 void PointCloud::printHeader() {
   int prec = 3;
-  cout
-      << fixed << setprecision(prec)
-      << "============================ HEADER INFO ============================"
-      << endl;
+  cout << fixed << setprecision(prec);
   cout << "magic = ";
   for (int i = 0; i < 4; i++) {
     cout << header.magic[i];
@@ -212,9 +221,6 @@ void PointCloud::printHeader() {
   cout << setw(10) << "maxX = " << setw(12) << header.maxX << "\t";
   cout << setw(10) << "maxY = " << setw(12) << header.maxY << "\t";
   cout << setw(10) << "maxZ = " << setw(12) << header.maxZ << endl;
-  cout
-      << "============================ HEADER  END ============================"
-      << endl;
 }
 /*
 ** printHead
@@ -225,20 +231,24 @@ void PointCloud::printHead(int n, bool longVerision) {
   int prec = 3;
   assert(fileLoaded);
   if (!longVerision) {
-    for (vector<Point>::iterator it = points.begin(); it != points.cbegin() + n;
-         ++it) {
-      cout << "x: " << setw(15) << it->x << "  y: " << setw(15) << it->y
-           << "  z: " << setw(15) << it->z << endl;
-    }
-  } else {
-    cout << "x, y, z, intensity, flags, class, angle rank, user data, "
-            "source, time, r, g, b"
-         << endl;
+    cout << "x" << sep << "y" << sep << "z" << endl;
     for (vector<Point>::iterator it = points.begin(); it != points.cbegin() + n;
          ++it) {
       cout << fixed << setprecision(prec) << it->x << sep << it->y << sep
-           << it->z << sep << it->intensity << sep << it->flags << sep
-           << it->classification << sep << it->scanAngleRank << sep
+           << it->z << endl;
+    }
+  } else {
+    cout << "x" << sep << "y" << sep << "z" << sep << "intensity" << sep
+         << "returnNum" << sep << "numOfReturns" << sep << "scanDirection"
+         << sep << "edge" << sep << "class" << sep << "scanAngleRank" << sep
+         << "userData" << sep << "pointSourceId" << sep << "gpsTime" << sep
+         << "red" << sep << "green" << sep << "blue" << endl;
+    for (vector<Point>::iterator it = points.begin(); it != points.cbegin() + n;
+         ++it) {
+      cout << fixed << setprecision(prec) << it->x << sep << it->y << sep
+           << it->z << sep << it->intensity << sep << it->returnNum << sep
+           << it->numOfReturns << sep << it->scanDirection << sep << it->edge
+           << sep << it->classification << sep << it->scanAngleRank << sep
            << it->userData << sep << it->pointSourceId << sep << it->gpsTime
            << sep << it->red << sep << it->blue << sep << it->green << endl;
     }
@@ -254,20 +264,24 @@ void PointCloud::printTail(int n, bool longVersion) {
   int prec = 3;
   assert(fileLoaded);
   if (!longVersion) {
-    for (vector<Point>::reverse_iterator it = points.rbegin();
-         it != points.crbegin() + n; ++it) {
-      cout << "x: " << setw(15) << it->x << "  y: " << setw(15) << it->y
-           << "  z: " << setw(15) << it->z << endl;
-    }
-  } else {
-    cout << "x, y, z, intensity, flags, class, angle rank, user data, "
-            "source, time, r, g, b"
-         << endl;
+    cout << "x" << sep << "y" << sep << "z" << endl;
     for (vector<Point>::reverse_iterator it = points.rbegin();
          it != points.crbegin() + n; ++it) {
       cout << fixed << setprecision(prec) << it->x << sep << it->y << sep
-           << it->z << sep << it->intensity << sep << it->flags << sep
-           << it->classification << sep << it->scanAngleRank << sep
+           << it->z << endl;
+    }
+  } else {
+    cout << "x" << sep << "y" << sep << "z" << sep << "intensity" << sep
+         << "returnNum" << sep << "numOfReturns" << sep << "scanDirection"
+         << sep << "edge" << sep << "class" << sep << "scanAngleRank" << sep
+         << "userData" << sep << "pointSourceId" << sep << "gpsTime" << sep
+         << "red" << sep << "green" << sep << "blue" << endl;
+    for (vector<Point>::reverse_iterator it = points.rbegin();
+         it != points.crbegin() + n; ++it) {
+      cout << fixed << setprecision(prec) << it->x << sep << it->y << sep
+           << it->z << sep << it->intensity << sep << it->returnNum << sep
+           << it->numOfReturns << sep << it->scanDirection << sep << it->edge
+           << sep << it->classification << sep << it->scanAngleRank << sep
            << it->userData << sep << it->pointSourceId << sep << it->gpsTime
            << sep << it->red << sep << it->blue << sep << it->green << endl;
     }

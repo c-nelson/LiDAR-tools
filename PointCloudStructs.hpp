@@ -85,10 +85,12 @@ struct Point {
       format;  // 0, 1, 2, 3 - corresponds with ASPRS point records
   double x, y, z;
   unsigned short int intensity;
-  uint8_t flags;  // bit 0, 1, 2 - return num; 3, 4, 5 num of returns; 6 -
-                  // scan direction; 7 - edge of flightline
-  unsigned char classification;
-  unsigned char scanAngleRank;
+  unsigned short int returnNum;
+  unsigned short int numOfReturns;
+  unsigned short int scanDirection;
+  bool edge;
+  unsigned short int classification;
+  short int scanAngleRank;
   unsigned char userData;
   unsigned short int pointSourceId;
   double gpsTime;
