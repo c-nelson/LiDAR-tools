@@ -1,3 +1,5 @@
+#ifndef POINT_CLOUD_STRUCTS_HPP_CNELSON
+#define POINT_CLOUD_STRUCTS_HPP_CNELSON
 #include <string>
 // Header holds all information about las file
 // __attribute__ ((packed)) used so that struct is tightly packed
@@ -24,8 +26,9 @@ struct __attribute__((packed)) Header {
   uint32_t numPointsByReturn[5];
   double scaleX, scaleY, scaleZ;
   double offX, offY, offZ;
-  double minX, minY, minZ;
-  double maxX, maxY, maxZ;
+  double maxX, minX;
+  double maxY, minY;
+  double maxZ, minZ;
 };
 
 struct __attribute__((packed)) PointRecord0 {
@@ -98,3 +101,4 @@ struct Point {
   unsigned short int green;
   unsigned short int blue;
 };
+#endif

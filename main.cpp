@@ -3,9 +3,9 @@
 
 int main() {
   PointCloud pc(
-      "/Users/christiannelson/Documents/LiDAR-tools/test-data/mingo.las");
+      "/Users/christiannelson/dev/LiDAR-tools/test-data/dod012319.las");
   pc.printHeader();
-  pc.printHead(1000, true);
-  // pc.printTail(8, true);
+  // pc.printHead(100, true);
+  // pc.printTail(100, true);
   return 0;
 }

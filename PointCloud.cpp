@@ -14,6 +14,16 @@ PointCloud::PointCloud() { fileLoaded = false; }
 PointCloud::PointCloud(const string &path) { read(path); }
 
 /*
+** extractFlagVals
+** Input: 8 bit flags, number of bits to extract, position to extract from
+** Output: int values that flags represent
+*/
+unsigned short int PointCloud::extractFlagVals(uint8_t flags, int bits,
+                                               int pos) {
+  return (((1 << bits) - 1) & (flags >> (pos)));
+}
+
+/*
 ** read
 ** Input: path to .las in format 1.2
 ** Output: header is filled, points are filled
@@ -33,11 +43,9 @@ void PointCloud::read(const string &path) {
   } else {
     throw runtime_error("LAS not found");
   }
-
   inLAS.seekg(header.pointDataOffset);
   // define a new array to hold raw point records
   // in one of 4 formats specificed by ASPRS
-
   if ((int)header.pointDataRecordFormat == 0) {
     PointRecord0 rawPoint;
     for (uint32_t i = 0; i < header.numberOfPoints; i++) {
@@ -49,9 +57,9 @@ void PointCloud::read(const string &path) {
                  ((double)rawPoint.z * header.scaleZ) + header.offZ,
                  (unsigned short int)rawPoint.intensity,
                  (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (0))),
-                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (2))),
-                 (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (4))),
-                 (bool)(((1 << 3) - 1) & (rawPoint.flags >> (5))),
+                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (3))),
+                 (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (6))),
+                 (bool)(((1 << 1) - 1) & (rawPoint.flags >> (7))),
                  (unsigned short int)rawPoint.classification,
                  (short int)rawPoint.scanAngleRank,
                  (unsigned char)rawPoint.userData,
@@ -76,9 +84,9 @@ void PointCloud::read(const string &path) {
                  ((double)rawPoint.z * header.scaleZ) + header.offZ,
                  (unsigned short int)rawPoint.intensity,
                  (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (0))),
-                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (2))),
-                 (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (4))),
-                 (bool)(((1 << 3) - 1) & (rawPoint.flags >> (5))),
+                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (3))),
+                 (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (6))),
+                 (bool)(((1 << 1) - 1) & (rawPoint.flags >> (7))),
                  (unsigned short int)rawPoint.classification,
                  (short int)rawPoint.scanAngleRank,
                  (unsigned char)rawPoint.userData,
@@ -103,9 +111,9 @@ void PointCloud::read(const string &path) {
                  ((double)rawPoint.z * header.scaleZ) + header.offZ,
                  (unsigned short int)rawPoint.intensity,
                  (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (0))),
-                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (2))),
-                 (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (4))),
-                 (bool)(((1 << 3) - 1) & (rawPoint.flags >> (5))),
+                 (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (3))),
+                 (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (6))),
+                 (bool)(((1 << 1) - 1) & (rawPoint.flags >> (7))),
                  (unsigned short int)rawPoint.classification,
                  (unsigned char)rawPoint.scanAngleRank,
                  (unsigned char)rawPoint.userData,
@@ -129,9 +137,9 @@ void PointCloud::read(const string &path) {
                ((double)rawPoint.z * header.scaleZ) + header.offZ,
                (unsigned short int)rawPoint.intensity,
                (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (0))),
-               (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (2))),
-               (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (4))),
-               (bool)(((1 << 3) - 1) & (rawPoint.flags >> (5))),
+               (unsigned short int)(((1 << 3) - 1) & (rawPoint.flags >> (3))),
+               (unsigned short int)(((1 << 1) - 1) & (rawPoint.flags >> (6))),
+               (bool)(((1 << 1) - 1) & (rawPoint.flags >> (7))),
                (unsigned short int)rawPoint.classification,
                (short int)rawPoint.scanAngleRank,
                (unsigned char)rawPoint.userData,
@@ -253,6 +261,7 @@ void PointCloud::printHead(int n, bool longVerision) {
            << sep << it->red << sep << it->blue << sep << it->green << endl;
     }
   }
+  cout << "maxsize: " << points.max_size() << endl;
 }
 
 /*
@@ -286,4 +295,28 @@ void PointCloud::printTail(int n, bool longVersion) {
            << sep << it->red << sep << it->blue << sep << it->green << endl;
     }
   }
+}
+
+/*
+** pointsPerSqUnit
+** Output: Returns the number of points per square unit
+** calculated based on the las header
+*/
+double PointCloud::pointsPerSqUnit() {
+  assert(fileLoaded);
+  double x = header.maxX - header.minX;
+  double y = header.maxY - header.minY;
+  return header.numberOfPoints / (x * y);
+}
+
+/*
+** optimalBinSize
+** Input: the desired points per bin
+**        the points per square unit of the dataset
+** Output: returns the square size of a bin
+** Notes: this is meant to divide the dataset only roughly,
+** the division of bins is based on 2D measurements
+*/
+int PointCloud::optimalBinSize(long pointsPerBin, double pointsPerSqUnit) {
+  return ceil(sqrt(pointsPerBin / pointsPerSqUnit));
 }

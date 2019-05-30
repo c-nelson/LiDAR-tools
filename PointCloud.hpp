@@ -1,3 +1,6 @@
+#ifndef POINT_CLOUD_HPP_CNELSON
+#define POINT_CLOUD_HPP_CNELSON
+#include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -27,4 +30,10 @@ class PointCloud {
   void outputLAS(std::string path);
   std::vector<Point> removeAbnormalZValues(double radius, double x, double y,
                                            double z);
+  unsigned short int extractFlagVals(uint8_t flags, int bits, int pos);
+
+ private:
+  double pointsPerSqUnit();
+  int optimalBinSize(long pointsPerBin, double pointsPerSqUnit);
 };
+#endif
